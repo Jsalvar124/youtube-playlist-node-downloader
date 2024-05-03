@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 5% 20%;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        input[type="text"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>YouTube Downloader</h1>
+    <form id="downloadForm">
+        <label for="url">YouTube URL:</label><br>
+        <input type="text" id="url" name="url" placeholder="Enter playlist or video URL"><br><br>
+
+        <label for="outputFolder">Output Folder:</label><br>
+        <input type="text" id="outputFolder" name="outputFolder" placeholder="Enter or select output folder"><br><br>
+
+        <input type="submit" value="Download">
+    </form>
+
+    <script>
+        document.getElementById('downloadForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const url = formData.get('url');
+            const outputFolder = formData.get('outputFolder');
+
+            // Perform validation if needed
+
+            // Send request to backend
+            try {
+                const response = await fetch(`/download?url=${encodeURIComponent(url)}&outputFolder=${encodeURIComponent(outputFolder)}`);
+                const data = await response.text();
+                alert(data); // Show the response message
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message); // Show error message
+            }
+        });
+    </script>
+</body>
+
+</html>

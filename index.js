@@ -1,34 +1,45 @@
-const ytdl = require('ytdl-core');
-const playlistInfo = require('youtube-playlist-info');
-const fs = require('fs/promises')
+const express = require('express')
+const dotenv = require('dotenv')
+const { downloadPlaylist, downloadVideo } = require('./services');
+const path = require('path');
 
-async function downloadVideo(videoUrl, outputDirectory) {
-    // Video information
-    const videoInfo = await ytdl.getInfo(videoUrl);
-    console.log(videoInfo)
-    const videoTitle = videoInfo.videoDetails.title;
-    const outputFilePath = `${outputDirectory}/${videoTitle.replace(/\//g, '-')}.mp3`;
+dotenv.config()
+const app = express();
+
+// Serve static files from the "public" directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/download', async (req, res) => {
+    const { url, outputFolder } = req.query;
+    console.log("url: ", url)
+    console.log("output folder: ", outputFolder)
 
 
-    const video = ytdl(videoUrl, { filter: 'audioonly' });
-    console.log(video)
-    try{
-        const file = await fs.open(outputFilePath, 'w');
-        video.pipe(file);
-    } catch(error) {
-        console.log(error)
+    try {
+        if (!url || !outputFolder) {
+            throw new Error('URL and output folder are required');
+        }
+
+        // Check if it's a playlist URL or a video URL
+        if (url.includes('playlist')) {
+            await downloadPlaylist(url, outputFolder);
+        } else {
+            await downloadVideo(url, outputFolder);
+        }
+        res.send('Download completed successfully!');
+    } catch (error) {
+        console.error('Error downloading:', error);
+        res.status(500).send('Error downloading: ' + error.message);
     }
-    return new Promise((resolve, reject) => {
-        video.on('end', () => {
-            console.log('Downloaded:');
-            file.close()
-            resolve();
-        });
-        video.on('error', reject);
-    });
-}
+});
 
-const videoUrl = "https://www.youtube.com/watch?v=I_818q1nMp8&ab_channel=NoTeVaGustar"
-const outputDirectory = "./youtube"
+app.get('/health', (req, res)=> {
+    res.json({"message": "Running!"})
+})
 
-downloadVideo(videoUrl, outputDirectory)
+app.listen(3000, ()=>{
+    console.log(`Running on port ${process.env.PORT}`, `http://localhost:${process.env.PORT}`)
+})
+
+
+
