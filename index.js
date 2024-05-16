@@ -21,7 +21,7 @@ app.get('/download', async (req, res) => {
         }
 
         // Check if it's a playlist URL or a video URL
-        if (url.includes('playlist')) {
+        if (url.includes('list')) {
             await downloadPlaylist(url, outputFolder);
         } else {
             await downloadVideo(url, outputFolder);
